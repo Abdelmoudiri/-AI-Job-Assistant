@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "AI Job Assistant",
+  "version": "1.0",
+  "description": "Détecte les offres d’emploi et rédige des candidatures avec l’IA (Gemini).",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://*.indeed.com/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "options_page": "config.html",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.indeed.com/*",
+        "https://*.rekrute.com/*",
+        "https://*.linkedin.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
