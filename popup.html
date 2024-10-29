@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI Job Assistant</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <span class="logo-icon">🤖</span>
+        <h1 class="logo-text">AI Job Assistant</h1>
+      </div>
+      <a class="settings-btn" href="config.html" target="_blank" title="Configuration">
+        <span>⚙️</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Filter Section -->
+  <section class="filter-section">
+    <label for="techFilter" class="filter-label">
+      <span class="filter-icon">🏷️</span>
+      Filtrer par technologie
+    </label>
+    <select id="techFilter" class="tech-filter">
+      <option value="all">🌐 Toutes les technologies</option>
+      <option value="developer">👨‍💻 Développeur (tous)</option>
+      <option value="java">☕ Java</option>
+      <option value="php">🐘 PHP</option>
+      <option value="react">⚛️ React</option>
+      <option value="javascript">💛 JavaScript / Node.js</option>
+      <option value="python">🐍 Python</option>
+      <option value="csharp">💜 C# / .NET</option>
+      <option value="ruby">💎 Ruby / Rails</option>
+    </select>
+  </section>
+
+  <!-- Jobs Counter -->
+  <div class="jobs-counter">
+    <span id="jobsCount">0</span> offres détectées
+  </div>
+
+  <!-- Jobs List -->
+  <section id="jobsList" class="jobs-list">
+    <div class="empty-state">
+      <span class="empty-icon">🔍</span>
+      <p>Aucune offre détectée</p>
+      <small>Allez sur Indeed.ma et rechargez la page</small>
+    </div>
+  </section>
+
+  <!-- Job Template -->
+  <template id="jobTemplate">
+    <div class="job-card">
+      <div class="job-header">
+        <h3 class="job-title"></h3>
+        <div class="job-tags"></div>
+      </div>
+      <div class="job-company">
+        <span class="company-icon">🏢</span>
+        <span class="company-name"></span>
+      </div>
+      <div class="job-actions">
+        <button class="btn btn-primary generate">
+          <span class="btn-icon">✨</span>
+          Générer lettre
+        </button>
+        <button class="btn btn-secondary open">
+          <span class="btn-icon">🔗</span>
+          Voir l'offre
+        </button>
+      </div>
+    </div>
+  </template>
+
+  <!-- Output Section -->
+  <section id="output" class="output-section" style="display: none;">
+    <div class="output-header">
+      <h2 class="output-title">
+        <span class="output-icon">📝</span>
+        Lettre de motivation
+      </h2>
+      <button id="closeOutput" class="btn-close" title="Fermer">✕</button>
+    </div>
+    <div id="generatedLetter" class="letter-content"></div>
+    <div class="output-actions">
+      <button id="copyLetter" class="btn btn-primary">
+        <span class="btn-icon">📋</span>
+        Copier
+      </button>
+      <button id="closeOutputBtn" class="btn btn-secondary">
+        Fermer
+      </button>
+    </div>
+  </section>
+
+  <script src="popup.js"></script>
+</body>
+</html>
