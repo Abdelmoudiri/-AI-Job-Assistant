@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI Job Assistant - Configuration</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      width: 100%;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 40px 20px;
+    }
+    
+    main h1 {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .model-results {
+      margin-top: 24px;
+      padding: 16px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      display: none;
+    }
+    
+    .model-results.show {
+      display: block;
+    }
+    
+    .model-results h3 {
+      margin-bottom: 12px;
+      color: #333;
+      font-size: 16px;
+    }
+    
+    .model-results pre {
+      background: white;
+      padding: 12px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    
+    .success-msg {
+      background: #d4edda;
+      color: #155724;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 16px;
+      border: 1px solid #c3e6cb;
+      display: none;
+    }
+    
+    .success-msg.show {
+      display: block;
+    }
+    
+    .error-msg {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 16px;
+      border: 1px solid #f5c6cb;
+      display: none;
+    }
+    
+    .error-msg.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>⚙️ Configuration</h1>
+    <form id="configForm">
+      <label>
+        🔑 URL du Proxy (recommandé)
+        <input id="proxyUrl" type="text" placeholder="http://localhost:3002" value="http://localhost:3002" />
+        <div class="note">✅ Utilisez le proxy local pour sécuriser votre API key. Démarrez-le avec START_PROXY.ps1</div>
+      </label>
+
+      <label>
+        🤖 Modèle Gemini
+        <select id="modelSelect">
+          <option value="gemini-2.0-flash">🚀 gemini-2.0-flash (Recommandé - Stable)</option>
+          <option value="gemini-2.5-flash">⚡ gemini-2.5-flash (Rapide mais instable)</option>
+          <option value="gemini-2.5-pro">⭐ gemini-2.5-pro (Qualité supérieure)</option>
+          <option value="gemini-pro">📝 gemini-pro (Standard)</option>
+        </select>
+        <div class="note">⚠️ gemini-2.5-flash a parfois des problèmes de tokens. Utilisez gemini-2.0-flash pour plus de stabilité.</div>
+      </label>
+
+      <label>
+        🔐 Clé API Gemini (optionnel si proxy utilisé)
+        <input id="apiKey" type="password" placeholder="AIzaSy..." />
+        <div class="note">💡 Si vous utilisez le proxy, la clé est déjà configurée côté serveur</div>
+      </label>
+
+      <label style="display: none;">
+        Modèle personnalisé
+        <input id="model" type="text" placeholder="gemini-2.5-flash" />
+      </label>
+
+      <div class="buttons">
+        <button type="submit">💾 Enregistrer</button>
+        <button id="testModelBtn" type="button">🧪 Tester le modèle</button>
+        <button id="clear" type="button">🗑️ Effacer</button>
+      </div>
+    </form>
+
+    <div id="successMsg" class="success-msg"></div>
+    <div id="errorMsg" class="error-msg"></div>
+    <div id="modelTestResults" class="model-results"></div>
+
+    <p class="note">
+      📖 <strong>Guide rapide :</strong><br>
+      1. Démarrez le proxy avec <code>START_PROXY.ps1</code><br>
+      2. Vérifiez que l'URL est <code>http://localhost:3002</code><br>
+      3. Cliquez sur "Tester le modèle" pour valider<br>
+      4. Enregistrez et utilisez l'extension ! 🎉
+    </p>
+  </main>
+  <script src="config.js"></script>
+</body>
+</html>
