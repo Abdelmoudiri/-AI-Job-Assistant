@@ -22,6 +22,9 @@ function renderJobs() {
     return tags.includes(tech);
   });
 
+  // trier par score de match (du plus élevé au plus bas)
+  filtered.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+
   // mettre à jour le compteur
   if (jobsCountEl) {
     jobsCountEl.textContent = filtered.length;
@@ -51,6 +54,41 @@ function renderJobs() {
     
     // nom de l'entreprise
     node.querySelector('.company-name').textContent = job.company || 'Entreprise non spécifiée';
+    
+    // score de match
+    const matchScore = job.matchScore || 0;
+    let scoreColor = '#999';
+    let scoreEmoji = '⭐';
+    
+    if (matchScore >= 80) {
+      scoreColor = '#34a853'; // vert
+      scoreEmoji = '🔥';
+    } else if (matchScore >= 60) {
+      scoreColor = '#fbbc04'; // jaune
+      scoreEmoji = '⭐';
+    } else if (matchScore >= 40) {
+      scoreColor = '#ff9800'; // orange
+      scoreEmoji = '💡';
+    } else {
+      scoreColor = '#999'; // gris
+      scoreEmoji = '📋';
+    }
+    
+    // ajouter le score avant le nom de l'entreprise
+    const companyEl = node.querySelector('.company-name');
+    const scoreEl = document.createElement('span');
+    scoreEl.style.cssText = `
+      display: inline-block;
+      margin-right: 8px;
+      padding: 2px 8px;
+      background: ${scoreColor}22;
+      color: ${scoreColor};
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    `;
+    scoreEl.textContent = `${scoreEmoji} ${matchScore}%`;
+    companyEl.parentNode.insertBefore(scoreEl, companyEl);
     
     // tags
     const tagsContainer = node.querySelector('.job-tags');

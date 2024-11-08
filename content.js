@@ -33,11 +33,75 @@ function scanIndeedJobs() {
       return tags;
     }
 
+    // calculer le score de match (0-100)
+    function calculateMatchScore(text, tags) {
+      if (!text) return 0;
+      const lowerText = text.toLowerCase();
+      
+      // mots-clés importants pour le score
+      const skillKeywords = [
+        'java', 'javascript', 'python', 'php', 'react', 'node', 'angular', 'vue',
+        'sql', 'mysql', 'mongodb', 'postgresql', 'docker', 'kubernetes', 'aws',
+        'git', 'agile', 'scrum', 'api', 'rest', 'graphql', 'typescript'
+      ];
+      
+      const levelKeywords = {
+        junior: 10,
+        'débutant': 10,
+        'junior': 10,
+        'stage': 15,
+        'alternance': 15,
+        'intermédiaire': -5,
+        'confirmé': -10,
+        'senior': -15,
+        'lead': -20,
+        '5 ans': -10,
+        '3 ans': -5
+      };
+      
+      let score = 50; // score de base
+      
+      // +5 points par compétence technique trouvée
+      let skillsFound = 0;
+      for (const skill of skillKeywords) {
+        if (lowerText.includes(skill)) {
+          skillsFound++;
+        }
+      }
+      score += Math.min(skillsFound * 5, 30); // max +30 pour les compétences
+      
+      // ajustement selon le niveau demandé
+      for (const [keyword, adjustment] of Object.entries(levelKeywords)) {
+        if (lowerText.includes(keyword)) {
+          score += adjustment;
+          break; // un seul ajustement de niveau
+        }
+      }
+      
+      // +10 si tags détectés
+      if (tags && tags.length > 0) {
+        score += Math.min(tags.length * 3, 15);
+      }
+      
+      // limiter entre 0 et 100
+      return Math.max(0, Math.min(100, Math.round(score)));
+    }
+
     function pushJob(title, company, description, url) {
       if (!title) return;
       const text = (title + '\n' + (company||'') + '\n' + (description||'')).trim();
       const tags = extractTags(text);
-      jobs.push({ title: title.trim(), company: company?.trim(), description: description?.trim?.() || description, url, source: 'indeed', tags, detectedAt: Date.now() });
+      const matchScore = calculateMatchScore(text, tags);
+      jobs.push({ 
+        title: title.trim(), 
+        company: company?.trim(), 
+        description: description?.trim?.() || description, 
+        url, 
+        source: 'indeed', 
+        tags, 
+        matchScore,
+        detectedAt: Date.now() 
+      });
     }
 
     // sélecteurs Indeed pour résultats de recherche et détails d'offre
