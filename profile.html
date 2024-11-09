@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon Profil - Job Assistant</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+      font-family: inherit;
+    }
+
+    .skills-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .skill-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      background: #667eea;
+      color: white;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .skill-tag .remove {
+      cursor: pointer;
+      font-weight: bold;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .skill-tag .remove:hover {
+      opacity: 1;
+    }
+
+    .skill-input-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .skill-input-group input {
+      flex: 1;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .info-box {
+      background: #f0f7ff;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .success-message {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #34a853;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: none;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    @media (max-width: 600px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>👤 Mon Profil</h1>
+      <p>Personnalise ton profil pour un score de match plus précis</p>
+    </div>
+
+    <div class="content">
+      <!-- Informations personnelles -->
+      <div class="section">
+        <div class="section-title">📋 Informations Personnelles</div>
+        <div class="grid">
+          <div class="form-group">
+            <label for="fullName">Nom complet</label>
+            <input type="text" id="fullName" placeholder="Ex: Ahmed Benali">
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="ahmed@example.com">
+          </div>
+        </div>
+        <div class="grid">
+          <div class="form-group">
+            <label for="phone">Téléphone</label>
+            <input type="tel" id="phone" placeholder="0612345678">
+          </div>
+          <div class="form-group">
+            <label for="location">Ville</label>
+            <input type="text" id="location" placeholder="Ex: Casablanca">
+          </div>
+        </div>
+      </div>
+
+      <!-- Niveau d'expérience -->
+      <div class="section">
+        <div class="section-title">💼 Niveau d'Expérience</div>
+        <div class="form-group">
+          <label for="experienceLevel">Niveau</label>
+          <select id="experienceLevel">
+            <option value="stage">Stage / Stagiaire</option>
+            <option value="junior" selected>Junior (0-2 ans)</option>
+            <option value="intermediate">Intermédiaire (2-5 ans)</option>
+            <option value="senior">Senior (5+ ans)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="jobTitle">Poste recherché</label>
+          <input type="text" id="jobTitle" placeholder="Ex: Développeur Full Stack">
+        </div>
+      </div>
+
+      <!-- Compétences -->
+      <div class="section">
+        <div class="section-title">🎯 Mes Compétences</div>
+        <div class="info-box">
+          💡 Ajoute tes compétences pour un score de match plus précis! Plus tu en ajoutes, meilleur sera le matching.
+        </div>
+        <div class="skill-input-group">
+          <input type="text" id="skillInput" placeholder="Ex: Java, React, Python...">
+          <button class="btn btn-primary" id="addSkillBtn">Ajouter</button>
+        </div>
+        <div class="skills-container" id="skillsContainer">
+          <!-- Les compétences apparaîtront ici -->
+        </div>
+      </div>
+
+      <!-- Préférences -->
+      <div class="section">
+        <div class="section-title">⚙️ Préférences</div>
+        <div class="grid">
+          <div class="form-group">
+            <label for="contractType">Type de contrat</label>
+            <select id="contractType">
+              <option value="all">Tous les types</option>
+              <option value="cdi">CDI</option>
+              <option value="cdd">CDD</option>
+              <option value="stage">Stage</option>
+              <option value="alternance">Alternance</option>
+              <option value="freelance">Freelance</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="remotePreference">Télétravail</label>
+            <select id="remotePreference">
+              <option value="all">Peu importe</option>
+              <option value="remote">100% remote</option>
+              <option value="hybrid">Hybride</option>
+              <option value="onsite">Sur site</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- À propos -->
+      <div class="section">
+        <div class="section-title">✍️ À Propos de Moi</div>
+        <div class="form-group">
+          <label for="bio">Présentation courte (utilisée pour les lettres de motivation)</label>
+          <textarea id="bio" placeholder="Ex: Développeur passionné avec 2 ans d'expérience en développement web. Spécialisé en React et Node.js..."></textarea>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button class="btn btn-primary" id="saveBtn">💾 Enregistrer le Profil</button>
+        <button class="btn btn-secondary" id="cancelBtn">❌ Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-message" id="successMessage">
+    ✅ Profil enregistré avec succès!
+  </div>
+
+  <script src="profile.js"></script>
+</body>
+</html>

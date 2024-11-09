@@ -9,8 +9,16 @@ const closeOutputBtn = document.getElementById('closeOutput');
 const closeOutputBtn2 = document.getElementById('closeOutputBtn');
 const copyLetterBtn = document.getElementById('copyLetter');
 const jobsCountEl = document.getElementById('jobsCount');
+const profileBtn = document.getElementById('profileBtn');
 
 let jobs = [];
+
+// ouvrir la page de profil
+if (profileBtn) {
+  profileBtn.addEventListener('click', () => {
+    chrome.tabs.create({ url: 'profile.html' });
+  });
+}
 
 // afficher la liste des offres avec des cartes modernes
 function renderJobs() {
