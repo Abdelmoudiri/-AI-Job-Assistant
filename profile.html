@@ -224,6 +224,94 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* Styles pour les compétences par catégories */
+    .skill-category {
+      margin-bottom: 25px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+    }
+
+    .category-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .skill-checkboxes {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+    }
+
+    .skill-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+
+    .skill-checkbox:hover {
+      border-color: #667eea;
+      background: #f0f4ff;
+    }
+
+    .skill-checkbox input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #667eea;
+    }
+
+    .skill-checkbox input[type="checkbox"]:checked + span {
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .selected-skills-summary {
+      margin-top: 20px;
+      padding: 15px;
+      background: #e8f5e9;
+      border-left: 4px solid #34a853;
+      border-radius: 8px;
+    }
+
+    .selected-skills-summary strong {
+      display: block;
+      margin-bottom: 10px;
+      color: #1e7e34;
+    }
+
+    #selectedSkillsList {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    #selectedSkillsList .skill-tag {
+      background: #34a853;
+      font-size: 12px;
+    }
+
+    #customSkillsContainer {
+      margin-top: 15px;
+    }
+
+    #customSkillsContainer .skill-tag {
+      background: #ff9800;
+    }
   </style>
 </head>
 <body>
@@ -281,14 +369,232 @@
       <div class="section">
         <div class="section-title">🎯 Mes Compétences</div>
         <div class="info-box">
-          💡 Ajoute tes compétences pour un score de match plus précis! Plus tu en ajoutes, meilleur sera le matching.
+          💡 Sélectionne tes compétences par catégorie pour un score de match précis!
         </div>
-        <div class="skill-input-group">
-          <input type="text" id="skillInput" placeholder="Ex: Java, React, Python...">
-          <button class="btn btn-primary" id="addSkillBtn">Ajouter</button>
+
+        <!-- Langages de Programmation -->
+        <div class="skill-category">
+          <h4 class="category-title">💻 Langages de Programmation</h4>
+          <div class="skill-checkboxes">
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Java" data-category="languages">
+              <span>Java</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="PHP" data-category="languages">
+              <span>PHP</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="C" data-category="languages">
+              <span>C</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="JavaScript" data-category="languages">
+              <span>JavaScript</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="SQL" data-category="languages">
+              <span>SQL</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="C#" data-category="languages">
+              <span>C#</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Python" data-category="languages">
+              <span>Python</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="TypeScript" data-category="languages">
+              <span>TypeScript</span>
+            </label>
+          </div>
         </div>
-        <div class="skills-container" id="skillsContainer">
-          <!-- Les compétences apparaîtront ici -->
+
+        <!-- Frameworks & Librairies -->
+        <div class="skill-category">
+          <h4 class="category-title">⚙️ Frameworks & Librairies</h4>
+          <div class="skill-checkboxes">
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Symfony" data-category="frameworks">
+              <span>Symfony</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Laravel" data-category="frameworks">
+              <span>Laravel</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="ReactJS" data-category="frameworks">
+              <span>ReactJS</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Bootstrap" data-category="frameworks">
+              <span>Bootstrap</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="TailwindCSS" data-category="frameworks">
+              <span>TailwindCSS</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="jQuery" data-category="frameworks">
+              <span>jQuery</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="AJAX" data-category="frameworks">
+              <span>AJAX</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Angular" data-category="frameworks">
+              <span>Angular</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Vue.js" data-category="frameworks">
+              <span>Vue.js</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Node.js" data-category="frameworks">
+              <span>Node.js</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Spring Boot" data-category="frameworks">
+              <span>Spring Boot</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Bases de Données -->
+        <div class="skill-category">
+          <h4 class="category-title">🗄️ Bases de Données</h4>
+          <div class="skill-checkboxes">
+            <label class="skill-checkbox">
+              <input type="checkbox" value="MySQL" data-category="databases">
+              <span>MySQL</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="PostgreSQL" data-category="databases">
+              <span>PostgreSQL</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="SQL Server" data-category="databases">
+              <span>SQL Server</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="MongoDB" data-category="databases">
+              <span>MongoDB</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Oracle" data-category="databases">
+              <span>Oracle</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Redis" data-category="databases">
+              <span>Redis</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Outils & Logiciels -->
+        <div class="skill-category">
+          <h4 class="category-title">🧰 Outils & Logiciels</h4>
+          <div class="skill-checkboxes">
+            <label class="skill-checkbox">
+              <input type="checkbox" value="VS Code" data-category="tools">
+              <span>VS Code</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Postman" data-category="tools">
+              <span>Postman</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Git" data-category="tools">
+              <span>Git</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="GitHub" data-category="tools">
+              <span>GitHub</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Docker" data-category="tools">
+              <span>Docker</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Figma" data-category="tools">
+              <span>Figma</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Jira" data-category="tools">
+              <span>Jira</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Trello" data-category="tools">
+              <span>Trello</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Crystal Reports" data-category="tools">
+              <span>Crystal Reports</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Kubernetes" data-category="tools">
+              <span>Kubernetes</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Jenkins" data-category="tools">
+              <span>Jenkins</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Méthodologies & Concepts -->
+        <div class="skill-category">
+          <h4 class="category-title">🧠 Méthodologies & Concepts</h4>
+          <div class="skill-checkboxes">
+            <label class="skill-checkbox">
+              <input type="checkbox" value="API REST" data-category="methodologies">
+              <span>API REST</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Scrum" data-category="methodologies">
+              <span>Scrum</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Analyse & Conception UML" data-category="methodologies">
+              <span>UML</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Agile" data-category="methodologies">
+              <span>Agile</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="MVC" data-category="methodologies">
+              <span>MVC</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="Microservices" data-category="methodologies">
+              <span>Microservices</span>
+            </label>
+            <label class="skill-checkbox">
+              <input type="checkbox" value="CI/CD" data-category="methodologies">
+              <span>CI/CD</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Compétences personnalisées -->
+        <div class="skill-category">
+          <h4 class="category-title">➕ Autres Compétences</h4>
+          <div class="skill-input-group">
+            <input type="text" id="customSkillInput" placeholder="Ajoute une compétence personnalisée...">
+            <button class="btn btn-secondary" id="addCustomSkillBtn">Ajouter</button>
+          </div>
+          <div class="skills-container" id="customSkillsContainer">
+            <!-- Les compétences personnalisées apparaîtront ici -->
+          </div>
+        </div>
+
+        <!-- Résumé des compétences sélectionnées -->
+        <div class="selected-skills-summary">
+          <strong>Compétences sélectionnées (<span id="skillCount">0</span>):</strong>
+          <div id="selectedSkillsList"></div>
         </div>
       </div>
 

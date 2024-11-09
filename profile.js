@@ -7,18 +7,42 @@ const phoneInput = document.getElementById('phone');
 const locationInput = document.getElementById('location');
 const experienceLevelSelect = document.getElementById('experienceLevel');
 const jobTitleInput = document.getElementById('jobTitle');
-const skillInput = document.getElementById('skillInput');
-const addSkillBtn = document.getElementById('addSkillBtn');
-const skillsContainer = document.getElementById('skillsContainer');
+const customSkillInput = document.getElementById('customSkillInput');
+const addCustomSkillBtn = document.getElementById('addCustomSkillBtn');
+const customSkillsContainer = document.getElementById('customSkillsContainer');
 const contractTypeSelect = document.getElementById('contractType');
 const remotePreferenceSelect = document.getElementById('remotePreference');
 const bioTextarea = document.getElementById('bio');
 const saveBtn = document.getElementById('saveBtn');
 const cancelBtn = document.getElementById('cancelBtn');
 const successMessage = document.getElementById('successMessage');
+const skillCountEl = document.getElementById('skillCount');
+const selectedSkillsList = document.getElementById('selectedSkillsList');
 
-// tableau des compétences
-let skills = [];
+// tableau des compétences personnalisées
+let customSkills = [];
+
+// mettre à jour le résumé des compétences sélectionnées
+function updateSkillsSummary() {
+  const checkedBoxes = document.querySelectorAll('.skill-checkbox input[type="checkbox"]:checked');
+  const selectedSkills = Array.from(checkedBoxes).map(cb => cb.value);
+  const allSkills = [...selectedSkills, ...customSkills];
+  
+  skillCountEl.textContent = allSkills.length;
+  
+  selectedSkillsList.innerHTML = '';
+  allSkills.forEach(skill => {
+    const tag = document.createElement('div');
+    tag.className = 'skill-tag';
+    tag.textContent = skill;
+    selectedSkillsList.appendChild(tag);
+  });
+}
+
+// gérer les changements de checkboxes
+document.querySelectorAll('.skill-checkbox input[type="checkbox"]').forEach(checkbox => {
+  checkbox.addEventListener('change', updateSkillsSummary);
+});
 
 // charger le profil existant
 function loadProfile() {
@@ -36,70 +60,83 @@ function loadProfile() {
       remotePreferenceSelect.value = profile.remotePreference || 'all';
       bioTextarea.value = profile.bio || '';
       
-      skills = profile.skills || [];
-      renderSkills();
+      // charger les compétences cochées
+      const skills = profile.skills || [];
+      document.querySelectorAll('.skill-checkbox input[type="checkbox"]').forEach(checkbox => {
+        if (skills.includes(checkbox.value)) {
+          checkbox.checked = true;
+        }
+      });
+      
+      // charger les compétences personnalisées
+      customSkills = profile.customSkills || [];
+      renderCustomSkills();
+      
+      updateSkillsSummary();
     }
   });
 }
 
-// afficher les compétences
-function renderSkills() {
-  skillsContainer.innerHTML = '';
+// afficher les compétences personnalisées
+function renderCustomSkills() {
+  customSkillsContainer.innerHTML = '';
   
-  if (skills.length === 0) {
-    skillsContainer.innerHTML = '<p style="color: #999; font-size: 13px;">Aucune compétence ajoutée</p>';
+  if (customSkills.length === 0) {
+    customSkillsContainer.innerHTML = '<p style="color: #999; font-size: 13px; margin-top: 10px;">Aucune compétence personnalisée</p>';
     return;
   }
   
-  skills.forEach((skill, index) => {
+  customSkills.forEach((skill, index) => {
     const tag = document.createElement('div');
     tag.className = 'skill-tag';
     tag.innerHTML = `
       <span>${skill}</span>
       <span class="remove" data-index="${index}">×</span>
     `;
-    skillsContainer.appendChild(tag);
+    customSkillsContainer.appendChild(tag);
   });
   
   // ajouter les événements de suppression
-  document.querySelectorAll('.skill-tag .remove').forEach(btn => {
+  document.querySelectorAll('#customSkillsContainer .skill-tag .remove').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const index = parseInt(e.target.dataset.index);
-      skills.splice(index, 1);
-      renderSkills();
+      customSkills.splice(index, 1);
+      renderCustomSkills();
+      updateSkillsSummary();
     });
   });
 }
 
-// ajouter une compétence
-function addSkill() {
-  const skill = skillInput.value.trim();
+// ajouter une compétence personnalisée
+function addCustomSkill() {
+  const skill = customSkillInput.value.trim();
   
   if (!skill) {
-    skillInput.focus();
+    customSkillInput.focus();
     return;
   }
   
   // vérifier si la compétence existe déjà
-  if (skills.some(s => s.toLowerCase() === skill.toLowerCase())) {
+  if (customSkills.some(s => s.toLowerCase() === skill.toLowerCase())) {
     alert('Cette compétence existe déjà!');
     return;
   }
   
-  skills.push(skill);
-  skillInput.value = '';
-  skillInput.focus();
-  renderSkills();
+  customSkills.push(skill);
+  customSkillInput.value = '';
+  customSkillInput.focus();
+  renderCustomSkills();
+  updateSkillsSummary();
 }
 
-// événement: ajouter compétence avec bouton
-addSkillBtn.addEventListener('click', addSkill);
+// événement: ajouter compétence personnalisée avec bouton
+addCustomSkillBtn.addEventListener('click', addCustomSkill);
 
-// événement: ajouter compétence avec Enter
-skillInput.addEventListener('keypress', (e) => {
+// événement: ajouter compétence personnalisée avec Enter
+customSkillInput.addEventListener('keypress', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
-    addSkill();
+    addCustomSkill();
   }
 });
 
@@ -112,8 +149,13 @@ function saveProfile() {
     return;
   }
   
-  if (skills.length === 0) {
-    const confirm = window.confirm('⚠️ Tu n\'as ajouté aucune compétence. Le score de match sera moins précis. Continuer?');
+  // récupérer toutes les compétences cochées
+  const checkedBoxes = document.querySelectorAll('.skill-checkbox input[type="checkbox"]:checked');
+  const selectedSkills = Array.from(checkedBoxes).map(cb => cb.value);
+  const allSkills = [...selectedSkills, ...customSkills];
+  
+  if (allSkills.length === 0) {
+    const confirm = window.confirm('⚠️ Tu n\'as sélectionné aucune compétence. Le score de match sera moins précis. Continuer?');
     if (!confirm) return;
   }
   
@@ -124,7 +166,8 @@ function saveProfile() {
     location: locationInput.value.trim(),
     experienceLevel: experienceLevelSelect.value,
     jobTitle: jobTitleInput.value.trim(),
-    skills: skills,
+    skills: allSkills,
+    customSkills: customSkills,
     contractType: contractTypeSelect.value,
     remotePreference: remotePreferenceSelect.value,
     bio: bioTextarea.value.trim(),
