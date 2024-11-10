@@ -615,10 +615,24 @@ function sleep(ms) {
 // Écouter les messages
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'startAutoApply') {
+    // Vérifier s'il y a un formulaire sur la page
+    const forms = document.querySelectorAll('form');
+    const inputs = document.querySelectorAll('input:not([type="hidden"]), textarea, select');
+    
+    if (forms.length === 0 || inputs.length < 3) {
+      // Pas de formulaire détecté
+      showNotification('⚠️ Aucun formulaire de candidature détecté sur cette page', 'warning');
+      showNotification('💡 Cherchez et cliquez sur le bouton "Postuler" ou "Candidater" du site', 'info');
+      console.log('❌ Aucun formulaire trouvé. Formulaires:', forms.length, 'Champs:', inputs.length);
+      sendResponse({ ok: false, error: 'Pas de formulaire' });
+      return true;
+    }
+    
     createAssistantBar();
     updateStatus('🚀 Assistant activé');
-    updateInfo('💡 Cliquez sur "Fill" pour remplir automatiquement les champs');
+    updateInfo(`💡 ${inputs.length} champs détectés - Cliquez sur "Fill" pour remplir automatiquement`);
     showNotification('🤖 Assistant de candidature activé !', 'success');
+    console.log('✅ Assistant activé -', forms.length, 'formulaire(s) et', inputs.length, 'champs détectés');
     sendResponse({ ok: true });
   }
   return true;
@@ -627,10 +641,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // Initialisation si on détecte un formulaire
 setTimeout(() => {
   const hasForm = document.querySelector('form');
-  const hasInputs = document.querySelectorAll('input, textarea, select').length > 3;
+  const visibleInputs = document.querySelectorAll('input:not([type="hidden"]), textarea, select');
   
-  if (hasForm && hasInputs) {
-    console.log('📝 Formulaire détecté sur la page');
+  if (hasForm && visibleInputs.length > 3) {
+    console.log('📝 Formulaire de candidature détecté :', visibleInputs.length, 'champs');
     // L'assistant sera créé quand l'utilisateur clique sur "Postuler" dans le popup
+  } else {
+    console.log('ℹ️ Page de description (pas de formulaire de candidature)');
   }
 }, 1000);
