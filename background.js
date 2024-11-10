@@ -126,6 +126,68 @@ async function callGemini(promptText, apiKey, model = 'gemini-pro') {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   (async () => {
     try {
+      // Handler pour récupérer le profil utilisateur (auto-apply assistant)
+      if (message?.type === 'getProfile') {
+        const profile = await chrome.storage.sync.get([
+          'userEmail', 'userPhone', 'userName', 'userLocation', 
+          'userJobTitle', 'userBio', 'userExperience', 'userEducation',
+          'userSkills', 'userLanguages'
+        ]);
+        sendResponse({ profile });
+        return;
+      }
+
+      // Handler pour générer une réponse AI (auto-apply assistant)
+      if (message?.type === 'generateAnswer') {
+        const { question, profile, jobInfo } = message;
+        const cfg = await chrome.storage.sync.get(['geminiApiKey', 'geminiModel']);
+        const apiKey = cfg.geminiApiKey;
+        const model = cfg.geminiModel || 'gemini-2.0-flash-exp';
+
+        if (!apiKey || apiKey === 'VOTRE_API_KEY_ICI') {
+          sendResponse({ 
+            error: 'Clé API Gemini non configurée. Allez dans Paramètres pour la configurer.' 
+          });
+          return;
+        }
+
+        // Construire un prompt contextualisé
+        const contextLines = [];
+        if (profile?.userName) contextLines.push(`Nom: ${profile.userName}`);
+        if (profile?.userJobTitle) contextLines.push(`Poste actuel: ${profile.userJobTitle}`);
+        if (profile?.userBio) contextLines.push(`Bio: ${profile.userBio}`);
+        if (profile?.userExperience) contextLines.push(`Expérience: ${profile.userExperience}`);
+        if (profile?.userSkills) contextLines.push(`Compétences: ${profile.userSkills}`);
+        
+        const jobContext = jobInfo ? `Poste visé: ${jobInfo.title} chez ${jobInfo.company}` : '';
+        
+        const prompt = `Tu es un assistant qui aide à remplir des formulaires de candidature.
+
+PROFIL DU CANDIDAT:
+${contextLines.join('\n')}
+
+${jobContext}
+
+QUESTION DU FORMULAIRE:
+${question}
+
+INSTRUCTIONS:
+Génère une réponse professionnelle, concise et pertinente (2-3 phrases maximum) pour cette question.
+La réponse doit être basée sur le profil du candidat et adaptée au poste.
+Réponds directement sans introduction ni formule de politesse.
+
+RÉPONSE:`;
+
+        try {
+          const result = await callGemini(prompt, apiKey, model);
+          sendResponse({ answer: result.letter });
+        } catch (err) {
+          console.error('Erreur génération réponse:', err);
+          sendResponse({ error: err.message || String(err) });
+        }
+        return;
+      }
+
       if (message?.type === 'testModels') {
         const apiKey = message.apiKey;
         const candidates = message.candidates || ['gemini-2.0-flash-exp', 'gemini-1.5-flash', 'gemini-pro'];

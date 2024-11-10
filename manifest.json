@@ -35,7 +35,7 @@
         "https://*/*",
         "http://*/*"
       ],
-      "js": ["auto-apply.js"],
+      "js": ["auto-apply.js", "auto-apply-assistant.js"],
       "run_at": "document_idle"
     }
   ]

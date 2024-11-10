@@ -346,6 +346,22 @@ body {
   transform: translateY(0);
 }
 
+.btn-apply {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(74, 222, 128, 0.3);
+  flex: 1;
+}
+
+.btn-apply:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 222, 128, 0.4);
+}
+
+.btn-apply:active {
+  transform: translateY(0);
+}
+
 /* ============================================
    Output Section
    ============================================ */

@@ -114,6 +114,7 @@ function renderJobs() {
     const btnGen = node.querySelector('.generate');
     const btnOpen = node.querySelector('.open');
     const btnAutoFill = node.querySelector('.btn-auto-fill');
+    const btnApply = node.querySelector('.btn-apply');
     
     btnGen.addEventListener('click', () => generateForJob(job));
     btnOpen.addEventListener('click', () => {
@@ -124,7 +125,53 @@ function renderJobs() {
       }
     });
     
-    // bouton auto-fill
+    // bouton postuler avec assistant IA
+    if (btnApply) {
+      btnApply.addEventListener('click', async () => {
+        if (!job.url) {
+          alert('❌ Pas d\'URL disponible pour cette offre.');
+          return;
+        }
+
+        const originalText = btnApply.innerHTML;
+        btnApply.innerHTML = '<span class="btn-icon">⏳</span> Ouverture...';
+        btnApply.disabled = true;
+
+        try {
+          // Ouvrir l'offre dans un nouvel onglet
+          const newTab = await chrome.tabs.create({ url: job.url });
+          
+          // Attendre que la page soit chargée
+          setTimeout(async () => {
+            // Activer l'assistant sur le nouvel onglet
+            try {
+              await chrome.tabs.sendMessage(newTab.id, { 
+                type: 'startAutoApply',
+                job: job
+              });
+              
+              btnApply.innerHTML = '<span class="btn-icon">✅</span> Activé !';
+              setTimeout(() => {
+                btnApply.innerHTML = originalText;
+                btnApply.disabled = false;
+              }, 2000);
+            } catch (err) {
+              console.log('L\'assistant sera activé automatiquement sur la page');
+              btnApply.innerHTML = originalText;
+              btnApply.disabled = false;
+            }
+          }, 2000);
+
+        } catch (err) {
+          console.error('Erreur ouverture:', err);
+          alert('❌ Erreur lors de l\'ouverture de la page');
+          btnApply.innerHTML = originalText;
+          btnApply.disabled = false;
+        }
+      });
+    }
+    
+    // bouton auto-fill (ancien)
     if (btnAutoFill) {
       btnAutoFill.addEventListener('click', async () => {
         const originalText = btnAutoFill.innerHTML;
