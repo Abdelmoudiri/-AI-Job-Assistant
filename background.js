@@ -25,25 +25,25 @@ async function addJobs(jobs) {
 // appeler l'API Gemini pour générer la lettre
 async function callGemini(promptText, apiKey, model = 'gemini-pro') {
   if (!apiKey) throw new Error('Pas de clé API configurée.');
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateText?key=${apiKey}`;
-  // demander à Gemini de créer une lettre de motivation en français
-  const body = {
-    prompt: { text: `Tu es un assistant professionnel qui rédige des lettres de motivation en français. Rédige uniquement la lettre de motivation (pas d'explications, pas d'objet de mail) adaptée à l'offre suivante :\n\n${promptText}\n\nLa lettre doit être claire, concise et professionnelle.` },
-    temperature: 0.2,
-    maxOutputTokens: 800
-  };
-
-  // fonction pour tester un modèle spécifique
+  
+  // fonction pour tester un modèle spécifique avec le nouveau endpoint
   async function tryModel(modelId) {
     const modelPath = modelId.startsWith('models/') ? modelId : `models/${modelId}`;
-    const tryUrl = `https://generativelanguage.googleapis.com/v1beta/${modelPath}:generateText?key=${apiKey}`;
-    // utiliser le format contents/parts
+    // NOUVEAU: utiliser generateContent au lieu de generateText
+    const tryUrl = `https://generativelanguage.googleapis.com/v1beta/${modelPath}:generateContent?key=${apiKey}`;
+    
     const bodyParts = {
-      model: modelId.startsWith('models/') ? modelId.replace(/^models\//, '') : modelId,
-      contents: [{ parts: [{ text: body.prompt.text }] }],
-      temperature: body.temperature,
-      maxOutputTokens: body.maxOutputTokens
+      contents: [{ 
+        parts: [{ 
+          text: `Tu es un assistant professionnel qui rédige des lettres de motivation en français. Rédige uniquement la lettre de motivation (pas d'explications, pas d'objet de mail) adaptée à l'offre suivante :\n\n${promptText}\n\nLa lettre doit être claire, concise et professionnelle.` 
+        }] 
+      }],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 800,
+      }
     };
+    
     const resp = await fetch(tryUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -53,7 +53,14 @@ async function callGemini(promptText, apiKey, model = 'gemini-pro') {
   }
 
   // essayer le modèle demandé puis les alternatives si ça marche pas
-  const fallbackCandidates = [model, 'gemini-2.5-flash', 'gemini-pro', 'gemini-1.0', 'gemini-1', 'text-bison-001'];
+  const fallbackCandidates = [
+    model, 
+    'gemini-2.0-flash-exp',
+    'gemini-1.5-flash', 
+    'gemini-1.5-pro',
+    'gemini-pro'
+  ];
+  
   // éviter les doublons et garder l'ordre
   const tried = new Set();
   let finalData = null;
@@ -69,6 +76,7 @@ async function callGemini(promptText, apiKey, model = 'gemini-pro') {
         // si 404, essayer le suivant. sinon lancer l'erreur
         if (resp.status === 404) {
           lastError = { status: resp.status, body: raw, modelTried: modelId, url: tryUrl };
+          console.log(`[callGemini] Modèle ${modelId} non disponible (404), essai suivant...`);
           continue; // essayer le prochain modèle
         }
         let details = raw;
@@ -80,10 +88,12 @@ async function callGemini(promptText, apiKey, model = 'gemini-pro') {
       let data;
       try { data = JSON.parse(raw); } catch (e) { data = raw; }
       finalData = { data, modelUsed: modelId };
+      console.log(`[callGemini] ✅ Succès avec le modèle: ${modelId}`);
       break;
     } catch (err) {
       // erreur réseau ou parsing - stocker et essayer le suivant
       lastError = { error: String(err), modelTried: candidate };
+      console.log(`[callGemini] Erreur avec ${candidate}:`, err.message);
       continue;
     }
   }
@@ -96,13 +106,16 @@ async function callGemini(promptText, apiKey, model = 'gemini-pro') {
 
   const data = finalData.data;
 
-  // extraire le texte de la réponse
+  // extraire le texte de la réponse (nouveau format)
   let text = '';
   if (data && typeof data === 'object') {
-    if (data?.candidates?.[0]?.content?.parts?.[0]?.text) text = data.candidates[0].content.parts[0].text;
-    else if (data?.output?.[0]?.content) text = JSON.stringify(data.output);
-    else if (data?.generatedText) text = data.generatedText;
-    else text = JSON.stringify(data);
+    if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+      text = data.candidates[0].content.parts[0].text;
+    } else if (data?.generatedText) {
+      text = data.generatedText;
+    } else {
+      text = JSON.stringify(data);
+    }
   } else if (typeof data === 'string') {
     text = data;
   }
@@ -115,17 +128,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     try {
       if (message?.type === 'testModels') {
         const apiKey = message.apiKey;
-        const candidates = message.candidates || ['gemini-pro', 'gemini-1.0', 'text-bison-001'];
+        const candidates = message.candidates || ['gemini-2.0-flash-exp', 'gemini-1.5-flash', 'gemini-pro'];
         const results = [];
         for (const candidate of candidates) {
           if (!candidate) continue;
           try {
             const modelPath = candidate.startsWith('models/') ? candidate : `models/${candidate}`;
-            const tryUrl = `https://generativelanguage.googleapis.com/v1beta/${modelPath}:generateText?key=${apiKey}`;
+            // NOUVEAU: utiliser generateContent au lieu de generateText
+            const tryUrl = `https://generativelanguage.googleapis.com/v1beta/${modelPath}:generateContent?key=${apiKey}`;
             const bodyParts = {
-              model: candidate.startsWith('models/') ? candidate.replace(/^models\//,'') : candidate,
               contents: [{ parts: [{ text: 'Court test: écris "OK"' }] }],
-              maxOutputTokens: 10
+              generationConfig: {
+                maxOutputTokens: 10
+              }
             };
             const resp = await fetch(tryUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bodyParts) });
             const raw = await resp.text();
