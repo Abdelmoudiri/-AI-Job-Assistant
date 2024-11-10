@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Auto-Apply Assistant</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+      text-align: center;
+    }
+    .test-info {
+      background: #e3f2fd;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #2196F3;
+    }
+    form {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #555;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    .test-buttons {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    .test-btn {
+      flex: 1;
+      background: #4CAF50;
+      padding: 10px;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .test-btn.secondary {
+      background: #FF9800;
+    }
+    .console-output {
+      background: #1e1e1e;
+      color: #00ff00;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 Test de l'Assistant Auto-Apply</h1>
+  
+  <div class="test-info">
+    <h3>📋 Instructions :</h3>
+    <ol>
+      <li><strong>Rechargez l'extension</strong> dans chrome://extensions/</li>
+      <li>Cliquez sur le bouton <strong>"Activer l'Assistant"</strong> ci-dessous</li>
+      <li>La barre avec les 3 boutons devrait apparaître en bas</li>
+      <li>Cliquez sur <strong>"✨ Fill"</strong> pour tester le remplissage</li>
+    </ol>
+  </div>
+
+  <form id="testForm">
+    <h2>Formulaire de Candidature Test</h2>
+    
+    <div class="form-group">
+      <label for="name">Nom complet *</label>
+      <input type="text" id="name" name="name" placeholder="Entrez votre nom" required>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Adresse Email *</label>
+      <input type="email" id="email" name="email" placeholder="exemple@email.com" required>
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Téléphone *</label>
+      <input type="tel" id="phone" name="phone" placeholder="+212 6XX XXX XXX" required>
+    </div>
+
+    <div class="form-group">
+      <label for="location">Localisation</label>
+      <input type="text" id="location" name="location" placeholder="Ville, Pays">
+    </div>
+
+    <div class="form-group">
+      <label for="position">Poste souhaité</label>
+      <input type="text" id="position" name="position" placeholder="Ex: Développeur Web">
+    </div>
+
+    <div class="form-group">
+      <label for="experience">Niveau d'expérience</label>
+      <select id="experience" name="experience">
+        <option value="">Sélectionnez...</option>
+        <option value="junior">Junior (0-2 ans)</option>
+        <option value="intermediate">Intermédiaire (2-5 ans)</option>
+        <option value="senior">Senior (5+ ans)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="motivation">Pourquoi ce poste ? *</label>
+      <textarea id="motivation" name="motivation" placeholder="Expliquez votre motivation..." required></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="skills">Vos compétences principales</label>
+      <textarea id="skills" name="skills" placeholder="Listez vos compétences..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="cv">CV (PDF)</label>
+      <input type="file" id="cv" name="cv" accept=".pdf">
+    </div>
+
+    <button type="submit">Soumettre la candidature</button>
+  </form>
+
+  <div class="test-buttons">
+    <button class="test-btn" onclick="activateAssistant()">
+      🤖 Activer l'Assistant
+    </button>
+    <button class="test-btn secondary" onclick="clearForm()">
+      🗑️ Vider le formulaire
+    </button>
+  </div>
+
+  <div class="console-output" id="console">
+    <div>📟 Console de débogage :</div>
+    <div id="logs"></div>
+  </div>
+
+  <script>
+    // Logger dans notre console custom
+    function log(message, type = 'info') {
+      const logs = document.getElementById('logs');
+      const time = new Date().toLocaleTimeString();
+      const colors = {
+        info: '#00ff00',
+        error: '#ff0000',
+        success: '#00ffff',
+        warning: '#ffff00'
+      };
+      logs.innerHTML += `<div style="color: ${colors[type]}">[${time}] ${message}</div>`;
+      logs.scrollTop = logs.scrollHeight;
+      console.log(message);
+    }
+
+    // Fonction pour activer l'assistant manuellement
+    function activateAssistant() {
+      log('🔄 Tentative d\'activation de l\'assistant...', 'info');
+      
+      if (typeof chrome !== 'undefined' && chrome.runtime) {
+        try {
+          chrome.runtime.sendMessage({ type: 'startAutoApply' }, (response) => {
+            if (chrome.runtime.lastError) {
+              log('❌ Erreur: ' + chrome.runtime.lastError.message, 'error');
+              log('💡 Vérifiez que l\'extension est chargée', 'warning');
+            } else {
+              log('✅ Message envoyé avec succès !', 'success');
+              log('👀 Regardez en bas de la page...', 'info');
+            }
+          });
+        } catch (err) {
+          log('❌ Erreur: ' + err.message, 'error');
+        }
+      } else {
+        log('❌ Extension non détectée', 'error');
+        log('💡 Rechargez l\'extension dans chrome://extensions/', 'warning');
+      }
+    }
+
+    // Fonction pour vider le formulaire
+    function clearForm() {
+      document.getElementById('testForm').reset();
+      log('🗑️ Formulaire vidé', 'info');
+    }
+
+    // Bloquer la soumission du formulaire
+    document.getElementById('testForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      log('✅ Formulaire soumis (simulation)', 'success');
+      alert('✅ Candidature soumise avec succès ! (test)');
+    });
+
+    // Log initial
+    log('🚀 Page de test chargée', 'success');
+    log('📝 Formulaire avec ' + document.querySelectorAll('input, textarea, select').length + ' champs détecté', 'info');
+    
+    // Vérifier si l'extension est chargée
+    setTimeout(() => {
+      if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
+        log('✅ Extension Chrome détectée', 'success');
+      } else {
+        log('⚠️ Extension non détectée', 'warning');
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
