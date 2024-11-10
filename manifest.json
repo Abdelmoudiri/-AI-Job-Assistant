@@ -7,7 +7,8 @@
     "storage",
     "activeTab",
     "scripting",
-    "clipboardWrite"
+    "clipboardWrite",
+    "tabs"
   ],
   "host_permissions": [
     "https://*.indeed.com/*",
@@ -35,7 +36,7 @@
         "https://*/*",
         "http://*/*"
       ],
-      "js": ["auto-apply.js", "auto-apply-assistant.js"],
+      "js": ["auto-apply.js", "auto-apply-assistant.js", "ai-vision-navigator.js"],
       "run_at": "document_idle"
     }
   ]

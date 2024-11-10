@@ -126,6 +126,126 @@ async function callGemini(promptText, apiKey, model = 'gemini-pro') {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   (async () => {
     try {
+      // Handler pour capturer un screenshot de la page
+      if (message?.type === 'captureScreenshot') {
+        try {
+          const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+          const screenshot = await chrome.tabs.captureVisibleTab(tab.windowId, {
+            format: 'png'
+          });
+          sendResponse({ screenshot });
+        } catch (err) {
+          console.error('Erreur capture screenshot:', err);
+          sendResponse({ error: err.message });
+        }
+        return;
+      }
+
+      // Handler pour analyser une page avec Gemini Vision
+      if (message?.type === 'analyzePageWithVision') {
+        const { screenshot, html, url, context } = message;
+        const cfg = await chrome.storage.sync.get(['geminiApiKey', 'geminiModel']);
+        const apiKey = cfg.geminiApiKey;
+
+        if (!apiKey || apiKey === 'VOTRE_API_KEY_ICI') {
+          sendResponse({ 
+            error: 'Clé API Gemini non configurée. Allez dans Paramètres pour la configurer.' 
+          });
+          return;
+        }
+
+        try {
+          // Préparer le prompt pour l'analyse
+          const analysisPrompt = `Tu es un assistant IA qui analyse des pages web pour aider à postuler à des offres d'emploi.
+
+CONTEXTE : Page de candidature à un emploi
+URL : ${url}
+
+INFORMATIONS DE LA PAGE :
+${JSON.stringify(html, null, 2)}
+
+INSTRUCTIONS :
+Analyse cette page et détermine :
+1. Type de page (description d'offre, formulaire de candidature, page de connexion, confirmation, etc.)
+2. Description courte de ce que l'utilisateur voit
+3. Action recommandée (que doit faire l'utilisateur maintenant ?)
+4. Prochaines étapes
+
+Réponds au format JSON :
+{
+  "pageType": "description_offre" | "formulaire_candidature" | "connexion" | "confirmation" | "autre",
+  "description": "Description de la page en 1-2 phrases",
+  "action": {
+    "type": "click" | "fill" | "wait" | "upload",
+    "target": "Nom du bouton/élément",
+    "description": "Ce que l'utilisateur doit faire"
+  },
+  "nextSteps": ["Étape 1", "Étape 2", ...]
+}
+
+EXEMPLES :
+
+Si c'est une page de description d'offre Indeed :
+{
+  "pageType": "description_offre",
+  "description": "Page de description de l'offre d'emploi. Le bouton 'Postuler' est visible.",
+  "action": {
+    "type": "click",
+    "target": "postuler",
+    "description": "Cliquer sur le bouton 'Postuler' pour accéder au formulaire"
+  },
+  "nextSteps": ["Cliquer sur Postuler", "Remplir le formulaire", "Soumettre la candidature"]
+}
+
+Si c'est un formulaire de candidature :
+{
+  "pageType": "formulaire_candidature",
+  "description": "Formulaire de candidature avec ${html.forms?.[0]?.fieldCount || 0} champs à remplir.",
+  "action": {
+    "type": "fill",
+    "description": "Remplir automatiquement les champs avec votre profil"
+  },
+  "nextSteps": ["Vérifier les informations", "Uploader le CV", "Soumettre"]
+}
+
+ANALYSE DE LA PAGE ACTUELLE :`;
+
+          // Appeler Gemini (modèle standard car Vision pas toujours disponible)
+          const result = await callGemini(analysisPrompt, apiKey, cfg.geminiModel || 'gemini-2.0-flash-exp');
+          
+          // Parser la réponse JSON
+          let analysis;
+          try {
+            const jsonMatch = result.letter.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+              analysis = JSON.parse(jsonMatch[0]);
+            } else {
+              // Si pas de JSON, créer une analyse basique
+              analysis = {
+                pageType: "autre",
+                description: result.letter,
+                action: null,
+                nextSteps: []
+              };
+            }
+          } catch (parseErr) {
+            console.error('Erreur parsing JSON:', parseErr);
+            analysis = {
+              pageType: "autre",
+              description: result.letter.substring(0, 200),
+              action: null,
+              nextSteps: []
+            };
+          }
+
+          sendResponse(analysis);
+        } catch (err) {
+          console.error('Erreur analyse Vision:', err);
+          sendResponse({ error: err.message });
+        }
+        return;
+      }
+
       // Handler pour récupérer le profil utilisateur (auto-apply assistant)
       if (message?.type === 'getProfile') {
         const profile = await chrome.storage.sync.get([

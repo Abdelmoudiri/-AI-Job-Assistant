@@ -125,7 +125,7 @@ function renderJobs() {
       }
     });
     
-    // bouton postuler avec assistant IA
+    // bouton postuler avec assistant IA intelligent (Vision)
     if (btnApply) {
       btnApply.addEventListener('click', async () => {
         if (!job.url) {
@@ -141,26 +141,26 @@ function renderJobs() {
           // Ouvrir l'offre dans un nouvel onglet
           const newTab = await chrome.tabs.create({ url: job.url });
           
-          // Attendre que la page soit chargée
+          // Attendre que la page soit complètement chargée
           setTimeout(async () => {
-            // Activer l'assistant sur le nouvel onglet
+            // Activer l'assistant intelligent Vision AI
             try {
               await chrome.tabs.sendMessage(newTab.id, { 
-                type: 'startAutoApply',
+                type: 'startSmartAssistant',
                 job: job
               });
               
-              btnApply.innerHTML = '<span class="btn-icon">✅</span> Activé !';
+              btnApply.innerHTML = '<span class="btn-icon">✅</span> IA Activée !';
               setTimeout(() => {
                 btnApply.innerHTML = originalText;
                 btnApply.disabled = false;
               }, 2000);
             } catch (err) {
-              console.log('L\'assistant sera activé automatiquement sur la page');
+              console.log('L\'assistant IA sera activé après chargement de la page');
               btnApply.innerHTML = originalText;
               btnApply.disabled = false;
             }
-          }, 2000);
+          }, 3000);
 
         } catch (err) {
           console.error('Erreur ouverture:', err);
