@@ -36,7 +36,7 @@
         "https://*/*",
         "http://*/*"
       ],
-      "js": ["auto-apply.js", "auto-apply-assistant.js", "ai-vision-navigator.js"],
+      "js": ["auto-apply.js", "ai-vision-navigator.js"],
       "run_at": "document_idle"
     }
   ]
