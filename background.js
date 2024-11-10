@@ -200,8 +200,8 @@ NE PAS inclure : adresse de l'expéditeur, date, objet (juste le corps de la let
 
 GÉNÈRE LA LETTRE MAINTENANT :`;
 
-        // si une URL proxy est configurée, l'utiliser au lieu de l'appel direct
-        if (proxyUrl) {
+        // si une URL proxy est configurée, essayer de l'utiliser
+        if (proxyUrl && proxyUrl.trim()) {
           try {
             // nettoyer et normaliser l'URL du proxy
             let cleanUrl = String(proxyUrl).trim();
@@ -213,7 +213,7 @@ GÉNÈRE LA LETTRE MAINTENANT :`;
             }
             
             const fullUrl = cleanUrl + '/generate';
-            console.log('[background] Appel du proxy:', fullUrl);
+            console.log('[background] Tentative via proxy:', fullUrl);
             
             const resp = await fetch(fullUrl, {
               method: 'POST',
@@ -224,21 +224,32 @@ GÉNÈRE LA LETTRE MAINTENANT :`;
             if (!resp.ok) {
               let details = raw;
               try { details = JSON.parse(raw); } catch (e) {}
-              sendResponse({ error: `Erreur proxy: ${resp.status} ${JSON.stringify(details)}` });
-              return;
+              console.warn('[background] Proxy a échoué, passage à l\'API directe');
+              // Ne pas return ici, laisser tomber sur l'appel direct
+              throw new Error(`Proxy failed: ${resp.status}`);
             }
             let data;
             try { data = JSON.parse(raw); } catch (e) { data = raw; }
             // on attend { letter: "...", modelUsed: "..." }
+            console.log('[background] ✅ Réponse reçue via proxy');
             sendResponse(data);
             return;
           } catch (err) {
-            sendResponse({ error: `Échec de la requête proxy: ${String(err)}` });
-            return;
+            console.warn('[background] ⚠️ Proxy non disponible, utilisation API directe:', err.message);
+            // Continuer avec l'appel direct à Gemini au lieu d'échouer
           }
         }
 
-        // sinon: appel direct à Gemini (comportement par défaut)
+        // appel direct à Gemini (comportement par défaut ou si proxy a échoué)
+        console.log('[background] Appel direct à l\'API Gemini');
+        
+        if (!apiKey || apiKey === 'VOTRE_API_KEY_ICI') {
+          sendResponse({ 
+            error: '❌ Clé API Gemini non configurée.\n\nAllez dans Paramètres ⚙️ pour configurer votre clé API Gemini.\n\nObtenez une clé gratuite sur: https://makersuite.google.com/app/apikey' 
+          });
+          return;
+        }
+        
         const gen = await callGemini(prompt, apiKey, model);
         sendResponse(gen);
         return;
