@@ -628,9 +628,79 @@
       <!-- À propos -->
       <div class="section">
         <div class="section-title">✍️ À Propos de Moi</div>
+        
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label style="font-weight: 600; margin-bottom: 12px; display: block;">
+            💡 Choisissez un template et personnalisez-le :
+          </label>
+          
+          <div class="bio-templates" style="display: grid; gap: 12px; margin-bottom: 16px;">
+            <!-- Template 1 -->
+            <div class="bio-template" data-template="professional" style="padding: 16px; background: #f8f9fa; border-radius: 8px; border: 2px solid transparent; cursor: pointer; transition: all 0.3s;">
+              <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 20px; margin-right: 8px;">👔</span>
+                <strong style="color: #333;">Professionnel et Concis</strong>
+              </div>
+              <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 0;">
+                Je suis un développeur web fullstack passionné, maîtrisant les technologies modernes telles que Laravel, ReactJS, et Docker. Actuellement en recherche d'un stage, je souhaite mettre en pratique mes compétences en conception d'applications web performantes et évolutives, tout en continuant à apprendre dans un environnement collaboratif et innovant.
+              </p>
+            </div>
+
+            <!-- Template 2 -->
+            <div class="bio-template" data-template="dynamic" style="padding: 16px; background: #f8f9fa; border-radius: 8px; border: 2px solid transparent; cursor: pointer; transition: all 0.3s;">
+              <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 20px; margin-right: 8px;">🚀</span>
+                <strong style="color: #333;">Dynamique et Motivé</strong>
+              </div>
+              <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 0;">
+                Développeur web fullstack motivé et curieux, j'aime transformer des idées en solutions digitales concrètes. Grâce à mes compétences en Java, PHP, JavaScript et frameworks modernes (Laravel, ReactJS, Spring Boot), je conçois des applications robustes et bien structurées. Je recherche un stage pour renforcer mes compétences techniques et contribuer activement à des projets innovants.
+              </p>
+            </div>
+
+            <!-- Template 3 -->
+            <div class="bio-template" data-template="simple" style="padding: 16px; background: #f8f9fa; border-radius: 8px; border: 2px solid transparent; cursor: pointer; transition: all 0.3s;">
+              <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 20px; margin-right: 8px;">💡</span>
+                <strong style="color: #333;">Simple et Direct</strong>
+              </div>
+              <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 0;">
+                Étudiant en développement web, je maîtrise les langages Java, PHP, et JavaScript, ainsi que des frameworks tels que Laravel, ReactJS et Spring Boot. Je cherche un stage en développement fullstack afin de mettre mes compétences en pratique et participer à des projets réels.
+              </p>
+            </div>
+
+            <!-- Template 4 -->
+            <div class="bio-template" data-template="experienced" style="padding: 16px; background: #f8f9fa; border-radius: 8px; border: 2px solid transparent; cursor: pointer; transition: all 0.3s;">
+              <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 20px; margin-right: 8px;">⭐</span>
+                <strong style="color: #333;">Expérimenté et Polyvalent</strong>
+              </div>
+              <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 0;">
+                Développeur fullstack avec une solide expérience en conception et développement d'applications web. Expert en PHP (Laravel, Symfony), JavaScript (React, Vue.js) et bases de données (MySQL, MongoDB). Passionné par les nouvelles technologies et les méthodologies Agile, je recherche un poste où je pourrai apporter mon expertise tout en relevant de nouveaux défis techniques.
+              </p>
+            </div>
+
+            <!-- Template 5 -->
+            <div class="bio-template" data-template="junior" style="padding: 16px; background: #f8f9fa; border-radius: 8px; border: 2px solid transparent; cursor: pointer; transition: all 0.3s;">
+              <div style="display: flex; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 20px; margin-right: 8px;">🌱</span>
+                <strong style="color: #333;">Junior Motivé</strong>
+              </div>
+              <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 0;">
+                Jeune développeur motivé et passionné par le code, j'ai acquis de solides bases en développement web à travers mes études et projets personnels. Maîtrisant HTML, CSS, JavaScript, PHP et des frameworks modernes, je suis prêt à apprendre rapidement et à m'investir pleinement dans une équipe dynamique. Je recherche une première expérience professionnelle pour développer mes compétences et contribuer à des projets concrets.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div class="form-group">
-          <label for="bio">Présentation courte (utilisée pour les lettres de motivation)</label>
-          <textarea id="bio" placeholder="Ex: Développeur passionné avec 2 ans d'expérience en développement web. Spécialisé en React et Node.js..."></textarea>
+          <label for="bio">
+            📝 Votre présentation (modifiez le template sélectionné selon l'offre)
+            <span style="font-size: 12px; color: #999; font-weight: normal;"> - Utilisée pour générer les lettres de motivation</span>
+          </label>
+          <textarea id="bio" placeholder="Cliquez sur un template ci-dessus ou écrivez votre propre présentation..." style="min-height: 120px;"></textarea>
+          <div style="margin-top: 8px; font-size: 12px; color: #666;">
+            💡 <strong>Astuce :</strong> Adaptez votre présentation selon le type de poste (stage, CDI, freelance) et l'entreprise visée.
+          </div>
         </div>
       </div>
 

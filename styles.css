@@ -544,3 +544,52 @@ select:focus {
   pointer-events: none;
 }
 
+/* ============================================
+   Bio Templates (Profile Page)
+   ============================================ */
+.bio-templates {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.bio-template {
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.bio-template:hover {
+  background: #e8ecf7;
+  transform: translateX(4px);
+}
+
+.bio-template.selected {
+  border: 2px solid #667eea;
+  background: #f0f4ff;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.bio-template strong {
+  color: #333;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.bio-template p {
+  color: #666;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.bio-template span {
+  font-size: 20px;
+}
+

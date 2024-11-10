@@ -22,6 +22,57 @@ const selectedSkillsList = document.getElementById('selectedSkillsList');
 // tableau des compétences personnalisées
 let customSkills = [];
 
+// Templates de bio
+const bioTemplates = {
+  professional: "Je suis un développeur web fullstack passionné, maîtrisant les technologies modernes telles que Laravel, ReactJS, et Docker. Actuellement en recherche d'un stage, je souhaite mettre en pratique mes compétences en conception d'applications web performantes et évolutives, tout en continuant à apprendre dans un environnement collaboratif et innovant.",
+  
+  dynamic: "Développeur web fullstack motivé et curieux, j'aime transformer des idées en solutions digitales concrètes. Grâce à mes compétences en Java, PHP, JavaScript et frameworks modernes (Laravel, ReactJS, Spring Boot), je conçois des applications robustes et bien structurées. Je recherche un stage pour renforcer mes compétences techniques et contribuer activement à des projets innovants.",
+  
+  simple: "Étudiant en développement web, je maîtrise les langages Java, PHP, et JavaScript, ainsi que des frameworks tels que Laravel, ReactJS et Spring Boot. Je cherche un stage en développement fullstack afin de mettre mes compétences en pratique et participer à des projets réels.",
+  
+  experienced: "Développeur fullstack avec une solide expérience en conception et développement d'applications web. Expert en PHP (Laravel, Symfony), JavaScript (React, Vue.js) et bases de données (MySQL, MongoDB). Passionné par les nouvelles technologies et les méthodologies Agile, je recherche un poste où je pourrai apporter mon expertise tout en relevant de nouveaux défis techniques.",
+  
+  junior: "Jeune développeur motivé et passionné par le code, j'ai acquis de solides bases en développement web à travers mes études et projets personnels. Maîtrisant HTML, CSS, JavaScript, PHP et des frameworks modernes, je suis prêt à apprendre rapidement et à m'investir pleinement dans une équipe dynamique. Je recherche une première expérience professionnelle pour développer mes compétences et contribuer à des projets concrets."
+};
+
+// Gérer la sélection des templates de bio
+document.querySelectorAll('.bio-template').forEach(template => {
+  template.addEventListener('click', function() {
+    // Retirer la sélection des autres templates
+    document.querySelectorAll('.bio-template').forEach(t => {
+      t.style.border = '2px solid transparent';
+      t.style.background = '#f8f9fa';
+    });
+    
+    // Marquer ce template comme sélectionné
+    this.style.border = '2px solid #667eea';
+    this.style.background = '#f0f4ff';
+    
+    // Remplir le textarea avec le texte du template
+    const templateType = this.dataset.template;
+    bioTextarea.value = bioTemplates[templateType];
+    
+    // Animation de feedback
+    bioTextarea.style.border = '2px solid #667eea';
+    setTimeout(() => {
+      bioTextarea.style.border = '1px solid #ddd';
+    }, 1000);
+  });
+  
+  // Effet hover
+  template.addEventListener('mouseenter', function() {
+    if (this.style.border !== '2px solid #667eea') {
+      this.style.background = '#e8ecf7';
+    }
+  });
+  
+  template.addEventListener('mouseleave', function() {
+    if (this.style.border !== '2px solid #667eea') {
+      this.style.background = '#f8f9fa';
+    }
+  });
+});
+
 // mettre à jour le résumé des compétences sélectionnées
 function updateSkillsSummary() {
   const checkedBoxes = document.querySelectorAll('.skill-checkbox input[type="checkbox"]:checked');
