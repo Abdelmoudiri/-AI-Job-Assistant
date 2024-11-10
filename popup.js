@@ -113,6 +113,7 @@ function renderJobs() {
     // boutons
     const btnGen = node.querySelector('.generate');
     const btnOpen = node.querySelector('.open');
+    const btnAutoFill = node.querySelector('.btn-auto-fill');
     
     btnGen.addEventListener('click', () => generateForJob(job));
     btnOpen.addEventListener('click', () => {
@@ -122,6 +123,40 @@ function renderJobs() {
         alert('❌ Pas d\'URL disponible pour cette offre.');
       }
     });
+    
+    // bouton auto-fill
+    if (btnAutoFill) {
+      btnAutoFill.addEventListener('click', async () => {
+        const originalText = btnAutoFill.innerHTML;
+        btnAutoFill.innerHTML = '<span class="btn-icon">⏳</span> Envoi...';
+        btnAutoFill.disabled = true;
+        
+        try {
+          // obtenir l'onglet actif
+          const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+          
+          // envoyer le message au content script
+          chrome.tabs.sendMessage(tab.id, { 
+            type: 'autoFill',
+            jobInfo: job
+          }, (response) => {
+            if (chrome.runtime.lastError) {
+              alert('⚠️ Veuillez ouvrir la page de candidature d\'abord');
+            } else {
+              btnAutoFill.innerHTML = '<span class="btn-icon">✅</span> Fait !';
+              setTimeout(() => {
+                btnAutoFill.innerHTML = originalText;
+                btnAutoFill.disabled = false;
+              }, 2000);
+            }
+          });
+        } catch (err) {
+          console.error('Erreur auto-fill:', err);
+          btnAutoFill.innerHTML = originalText;
+          btnAutoFill.disabled = false;
+        }
+      });
+    }
     
     jobsListEl.appendChild(node);
   }
