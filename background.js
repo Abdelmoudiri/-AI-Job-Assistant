@@ -185,10 +185,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (message?.type === 'generateForJob') {
         const job = message.job;
         // récupérer la config depuis le storage
-        const cfg = await chrome.storage.sync.get(['geminiApiKey', 'geminiModel', 'geminiProxyUrl']);
+        const cfg = await chrome.storage.sync.get(['geminiApiKey', 'geminiModel']);
         const apiKey = cfg.geminiApiKey;
-        const model = cfg.geminiModel || 'gemini-pro';
-        const proxyUrl = cfg.geminiProxyUrl;
+        const model = cfg.geminiModel || 'gemini-2.0-flash-exp';
+        
+        // vérifier que la clé API est configurée
+        if (!apiKey || apiKey === 'VOTRE_API_KEY_ICI') {
+          sendResponse({ 
+            error: '❌ Clé API Gemini non configurée.\n\nAllez dans Paramètres ⚙️ pour configurer votre clé API Gemini.\n\nObtenez une clé gratuite sur: https://makersuite.google.com/app/apikey' 
+          });
+          return;
+        }
         
         // prompt amélioré et explicite
         const prompt = `Tu es un assistant qui génère des lettres de motivation professionnelles en français.
@@ -215,56 +222,8 @@ NE PAS inclure : adresse de l'expéditeur, date, objet (juste le corps de la let
 
 GÉNÈRE LA LETTRE MAINTENANT :`;
 
-        // si une URL proxy est configurée, essayer de l'utiliser
-        if (proxyUrl && proxyUrl.trim()) {
-          try {
-            // nettoyer et normaliser l'URL du proxy
-            let cleanUrl = String(proxyUrl).trim();
-            // enlever les / à la fin
-            cleanUrl = cleanUrl.replace(/\/+$/, '');
-            // s'assurer que ça commence par http:// ou https://
-            if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
-              cleanUrl = 'http://' + cleanUrl;
-            }
-            
-            const fullUrl = cleanUrl + '/generate';
-            console.log('[background] Tentative via proxy:', fullUrl);
-            
-            const resp = await fetch(fullUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ prompt: prompt, model })
-            });
-            const raw = await resp.text();
-            if (!resp.ok) {
-              let details = raw;
-              try { details = JSON.parse(raw); } catch (e) {}
-              console.warn('[background] Proxy a échoué, passage à l\'API directe');
-              // Ne pas return ici, laisser tomber sur l'appel direct
-              throw new Error(`Proxy failed: ${resp.status}`);
-            }
-            let data;
-            try { data = JSON.parse(raw); } catch (e) { data = raw; }
-            // on attend { letter: "...", modelUsed: "..." }
-            console.log('[background] ✅ Réponse reçue via proxy');
-            sendResponse(data);
-            return;
-          } catch (err) {
-            console.warn('[background] ⚠️ Proxy non disponible, utilisation API directe:', err.message);
-            // Continuer avec l'appel direct à Gemini au lieu d'échouer
-          }
-        }
-
-        // appel direct à Gemini (comportement par défaut ou si proxy a échoué)
-        console.log('[background] Appel direct à l\'API Gemini');
-        
-        if (!apiKey || apiKey === 'VOTRE_API_KEY_ICI') {
-          sendResponse({ 
-            error: '❌ Clé API Gemini non configurée.\n\nAllez dans Paramètres ⚙️ pour configurer votre clé API Gemini.\n\nObtenez une clé gratuite sur: https://makersuite.google.com/app/apikey' 
-          });
-          return;
-        }
-        
+        // appel direct à l'API Gemini
+        console.log('[background] 🚀 Génération via API Gemini directe');
         const gen = await callGemini(prompt, apiKey, model);
         sendResponse(gen);
         return;

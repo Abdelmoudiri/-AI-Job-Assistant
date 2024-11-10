@@ -1,119 +1,139 @@
-// config.js - save and load API key and model to chrome.storage.sync
+// config.js - Configuration simplifiée (API directe uniquement)
 
 const form = document.getElementById('configForm');
 const apiKeyInput = document.getElementById('apiKey');
-const modelInput = document.getElementById('model');
 const clearBtn = document.getElementById('clear');
 const testBtn = document.getElementById('testModelBtn');
 const resultsEl = document.getElementById('modelTestResults');
 const modelSelect = document.getElementById('modelSelect');
-const proxyInput = document.getElementById('proxyUrl');
+const successMsg = document.getElementById('successMsg');
+const errorMsg = document.getElementById('errorMsg');
 
+// Charger la configuration au démarrage
 async function loadConfig() {
   const cfg = await chrome.storage.sync.get(['geminiApiKey', 'geminiModel']);
   apiKeyInput.value = cfg.geminiApiKey || '';
-  modelInput.value = cfg.geminiModel || 'gemini-pro';
-  // populate modelSelect value if in list
-  try { if (modelSelect && cfg.geminiModel) modelSelect.value = cfg.geminiModel; } catch(e){}
-  // load proxy URL
-  const p = await chrome.storage.sync.get(['geminiProxyUrl']);
-  proxyInput.value = p.geminiProxyUrl || '';
+  
+  if (cfg.geminiModel) {
+    modelSelect.value = cfg.geminiModel;
+  } else {
+    modelSelect.value = 'gemini-2.0-flash-exp'; // défaut
+  }
 }
 
+// Sauvegarder la configuration
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   
-  // Clean proxy URL before saving
-  let cleanProxyUrl = proxyInput.value.trim();
-  // Remove trailing slashes
-  cleanProxyUrl = cleanProxyUrl.replace(/\/+$/, '');
+  const apiKey = apiKeyInput.value.trim();
+  const model = modelSelect.value;
   
-  await chrome.storage.sync.set({ 
-    geminiApiKey: apiKeyInput.value, 
-    geminiModel: modelInput.value, 
-    geminiProxyUrl: cleanProxyUrl 
-  });
-  
-  alert('✅ Configuration enregistrée.\n\nProxy URL: ' + cleanProxyUrl);
-});
-
-clearBtn.addEventListener('click', async () => {
-  if (!confirm('Effacer la clé API de la configuration ?')) return;
-  await chrome.storage.sync.remove(['geminiApiKey', 'geminiModel', 'geminiProxyUrl']);
-  apiKeyInput.value = '';
-  modelInput.value = 'gemini-pro';
-  proxyInput.value = '';
-});
-
-loadConfig();
-
-// When a model is selected from the dropdown, populate the model input and run the test.
-modelSelect?.addEventListener('change', async (e) => {
-  const val = modelSelect.value || '';
-  modelInput.value = val;
-  // trigger a test automatically when user selects a model
-  if (val) {
-    await runModelTestForCandidate(val);
-  }
-});
-
-// Helper that performs the test via background and renders results
-function runModelTestForCandidate(candidateModel) {
-  return new Promise((resolve) => {
-    const key = apiKeyInput.value.trim();
-    if (!key) {
-      resultsEl.innerText = 'Entrez d\'abord votre clé API.';
-      resolve();
-      return;
-    }
-    resultsEl.innerText = `Test du modèle ${candidateModel}...`;
-    const candidates = [candidateModel];
-    chrome.runtime.sendMessage({ type: 'testModels', apiKey: key, candidates }, (resp) => {
-      if (chrome.runtime.lastError) {
-        resultsEl.innerText = 'Erreur de communication avec le background: ' + chrome.runtime.lastError.message;
-        resolve();
-        return;
-      }
-      if (!resp) { resultsEl.innerText = 'Aucune réponse.'; resolve(); return; }
-      renderResults(resp.results || []);
-      resolve();
-    });
-  });
-}
-
-// Helper: render a short result
-function renderResults(results) {
-  if (!results || !results.length) {
-    resultsEl.innerText = 'Aucun résultat.';
+  if (!apiKey) {
+    showError('❌ Veuillez entrer une clé API');
     return;
   }
-  resultsEl.innerHTML = '';
-  for (const r of results) {
-    const div = document.createElement('div');
-    div.className = 'model-result';
-    const status = r.ok ? 'OK' : `ERR ${r.status || ''}`;
-    const note = r.note ? (typeof r.note === 'string' ? r.note : JSON.stringify(r.note, null, 2)) : '';
-    const sample = r.sample ? (typeof r.sample === 'string' ? r.sample : JSON.stringify(r.sample, null, 2)) : '';
-    div.innerHTML = `<strong>${r.model}</strong> — ${status}<br/><small>${note}</small><pre>${sample}</pre>`;
-    resultsEl.appendChild(div);
+  
+  // Vérifier le format de la clé
+  if (!apiKey.startsWith('AIza')) {
+    showError('⚠️ Format de clé invalide. Une clé API Gemini commence par "AIza"');
+    return;
   }
+  
+  await chrome.storage.sync.set({ 
+    geminiApiKey: apiKey, 
+    geminiModel: model
+  });
+  
+  showSuccess(`✅ Configuration enregistrée !<br><br><strong>Modèle :</strong> ${model}<br><br>Vous pouvez maintenant générer des lettres de motivation 🎉`);
+});
+
+// Effacer la configuration
+clearBtn.addEventListener('click', async () => {
+  if (!confirm('Êtes-vous sûr de vouloir effacer la configuration ?')) return;
+  
+  await chrome.storage.sync.remove(['geminiApiKey', 'geminiModel']);
+  apiKeyInput.value = '';
+  modelSelect.value = 'gemini-2.0-flash-exp';
+  showSuccess('✅ Configuration effacée');
+});
+
+// Tester la connexion
+testBtn.addEventListener('click', async () => {
+  const apiKey = apiKeyInput.value.trim();
+  const model = modelSelect.value;
+  
+  if (!apiKey) {
+    showError('❌ Veuillez entrer une clé API avant de tester');
+    return;
+  }
+  
+  testBtn.disabled = true;
+  testBtn.textContent = '⏳ Test en cours...';
+  resultsEl.innerHTML = '<p>🔄 Test de la connexion avec Google Gemini...</p>';
+  resultsEl.classList.add('show');
+  
+  try {
+    // Envoyer un message de test au background
+    const response = await chrome.runtime.sendMessage({
+      type: 'testModels',
+      apiKey: apiKey,
+      candidates: [model]
+    });
+    
+    if (response && response.results && response.results.length > 0) {
+      const result = response.results[0];
+      
+      if (result.ok) {
+        resultsEl.innerHTML = `
+          <h3>✅ Test réussi !</h3>
+          <p><strong>Modèle testé :</strong> ${result.model}</p>
+          <p><strong>Statut :</strong> ${result.status}</p>
+          <p><strong>Réponse :</strong></p>
+          <pre>${result.sample || 'OK'}</pre>
+          <p style="color: green; font-weight: bold;">🎉 Votre configuration fonctionne parfaitement !</p>
+        `;
+        showSuccess('✅ Test réussi ! Votre clé API est valide.');
+      } else {
+        resultsEl.innerHTML = `
+          <h3>❌ Test échoué</h3>
+          <p><strong>Modèle :</strong> ${result.model}</p>
+          <p><strong>Statut :</strong> ${result.status || 'Erreur'}</p>
+          <p><strong>Message :</strong></p>
+          <pre>${result.note || result.error || 'Erreur inconnue'}</pre>
+          <p style="color: red;">⚠️ Vérifiez votre clé API ou essayez un autre modèle.</p>
+        `;
+        showError('❌ Test échoué. Vérifiez votre clé API.');
+      }
+    } else {
+      throw new Error('Réponse invalide du service');
+    }
+  } catch (err) {
+    resultsEl.innerHTML = `
+      <h3>❌ Erreur</h3>
+      <p>${err.message}</p>
+      <p style="color: red;">Vérifiez votre connexion Internet et votre clé API.</p>
+    `;
+    showError('❌ Erreur lors du test : ' + err.message);
+  } finally {
+    testBtn.disabled = false;
+    testBtn.textContent = '🧪 Tester la connexion';
+  }
+});
+
+// Fonctions d'affichage des messages
+function showSuccess(msg) {
+  successMsg.innerHTML = msg;
+  successMsg.classList.add('show');
+  errorMsg.classList.remove('show');
+  setTimeout(() => successMsg.classList.remove('show'), 6000);
 }
 
-// Test button: save key/model then ask background to try a few models
-testBtn?.addEventListener('click', async () => {
-  const key = apiKeyInput.value.trim();
-  if (!key) { alert('Entrez d\'abord votre clé API.'); return; }
-  // save current config
-  await chrome.storage.sync.set({ geminiApiKey: key, geminiModel: modelInput.value });
-  resultsEl.innerText = 'Test en cours...';
-  // Candidate models to try (order matters)
-  const candidates = [modelInput.value || '', 'gemini-pro', 'gemini-1.0', 'gemini-1', 'text-bison-001'];
-  chrome.runtime.sendMessage({ type: 'testModels', apiKey: key, candidates }, (resp) => {
-    if (chrome.runtime.lastError) {
-      resultsEl.innerText = 'Erreur de communication avec le background: ' + chrome.runtime.lastError.message;
-      return;
-    }
-    if (!resp) { resultsEl.innerText = 'Aucune réponse.'; return; }
-    renderResults(resp.results || []);
-  });
-});
+function showError(msg) {
+  errorMsg.innerHTML = msg;
+  errorMsg.classList.add('show');
+  successMsg.classList.remove('show');
+  setTimeout(() => errorMsg.classList.remove('show'), 6000);
+}
+
+// Initialisation
+loadConfig();

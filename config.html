@@ -17,6 +17,7 @@
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
     
     .model-results {
@@ -80,50 +81,43 @@
   <main>
     <h1>⚙️ Configuration</h1>
     
-    <div class="note" style="background: #fff3cd; border: 1px solid #ffc107; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
-      <strong>💡 Configuration rapide (2 méthodes) :</strong><br><br>
+    <div class="note" style="background: #e7f3ff; border: 2px solid #2196f3; padding: 20px; border-radius: 12px; margin-bottom: 24px;">
+      <strong style="font-size: 18px;">🚀 Configuration en 3 étapes :</strong><br><br>
       
-      <strong>✅ Méthode 1 - API Directe (RECOMMANDÉ)</strong><br>
-      1. Obtenez une clé gratuite : <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a><br>
-      2. Collez la clé ci-dessous<br>
-      3. <strong>Laissez "URL Proxy" VIDE</strong><br>
-      4. Enregistrez ✅<br><br>
+      <strong>1️⃣ Obtenez votre clé API gratuite</strong><br>
+      → Visitez : <a href="https://makersuite.google.com/app/apikey" target="_blank" style="color: #2196f3; font-weight: bold;">Google AI Studio</a><br>
+      → Cliquez sur "Create API Key"<br>
+      → Copiez la clé (format : <code>AIzaSy...</code>)<br><br>
       
-      <strong>⚙️ Méthode 2 - Via Proxy (optionnel)</strong><br>
-      1. Démarrez le proxy : <code>node proxy-server.js</code><br>
-      2. URL Proxy : <code>http://localhost:3002</code><br>
-      3. Pas besoin de clé API ici
+      <strong>2️⃣ Collez votre clé ci-dessous</strong><br><br>
+      
+      <strong>3️⃣ Cliquez sur "Enregistrer" et c'est prêt ! ✅</strong><br><br>
+      
+      <div style="background: #fff; padding: 16px; border-radius: 8px; margin-top: 16px; border-left: 4px solid #2196f3;">
+        💰 <strong>Gratuit :</strong> 1500 requêtes/jour (50+ candidatures/jour)<br>
+        ⚡ <strong>Rapide :</strong> Réponse en 2-5 secondes<br>
+        🔒 <strong>Sécurisé :</strong> Clé stockée localement dans Chrome
+      </div>
     </div>
     
     <form id="configForm">
       <label>
-        🔐 Clé API Gemini
-        <input id="apiKey" type="password" placeholder="AIzaSy..." />
+        🔐 Clé API Gemini <span style="color: red;">*</span>
+        <input id="apiKey" type="password" placeholder="AIzaSy..." required />
         <div class="note">
-          🔗 <a href="https://makersuite.google.com/app/apikey" target="_blank">Obtenir une clé gratuite</a><br>
-          💰 Gratuit : 1500 requêtes/jour<br>
-          ⚠️ <strong>Si vous utilisez le proxy, laissez ce champ vide</strong>
+          🔗 <a href="https://makersuite.google.com/app/apikey" target="_blank">Obtenir une clé gratuite ici</a>
         </div>
       </label>
 
       <label>
         🤖 Modèle Gemini
         <select id="modelSelect">
-          <option value="gemini-2.0-flash-exp">🚀 gemini-2.0-flash-exp (Recommandé)</option>
-          <option value="gemini-1.5-flash">⚡ gemini-1.5-flash (Rapide)</option>
-          <option value="gemini-1.5-pro">⭐ gemini-1.5-pro (Qualité supérieure)</option>
+          <option value="gemini-2.0-flash-exp">🚀 gemini-2.0-flash-exp (Recommandé - Rapide et performant)</option>
+          <option value="gemini-1.5-flash">⚡ gemini-1.5-flash (Très rapide)</option>
+          <option value="gemini-1.5-pro">⭐ gemini-1.5-pro (Qualité maximale)</option>
           <option value="gemini-pro">📝 gemini-pro (Standard)</option>
         </select>
-        <div class="note">💡 gemini-2.0-flash-exp offre le meilleur rapport qualité/vitesse</div>
-      </label>
-
-      <label>
-        � URL du Proxy (optionnel)
-        <input id="proxyUrl" type="text" placeholder="Laisser vide pour API directe" />
-        <div class="note">
-          ⚠️ <strong>Laissez VIDE pour utiliser l'API directe</strong><br>
-          OU remplissez si vous avez un proxy : <code>http://localhost:3002</code>
-        </div>
+        <div class="note">💡 Le modèle recommandé offre le meilleur compromis vitesse/qualité</div>
       </label>
 
       <div class="buttons">
@@ -137,9 +131,26 @@
     <div id="errorMsg" class="error-msg"></div>
     <div id="modelTestResults" class="model-results"></div>
 
-    <p class="note">
-      📖 <strong>Besoin d'aide ?</strong><br>
-      Consultez le fichier <code>CONFIGURATION-GUIDE.md</code> pour plus de détails.
+    <p class="note" style="margin-top: 32px; background: #f5f5f5; padding: 20px; border-radius: 12px;">
+      ❓ <strong style="font-size: 16px;">Besoin d'aide ?</strong><br><br>
+      
+      <strong>Comment obtenir la clé API ?</strong><br>
+      1. Allez sur <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a><br>
+      2. Connectez-vous avec votre compte Google<br>
+      3. Cliquez sur "Create API Key"<br>
+      4. Copiez la clé et collez-la ci-dessus<br><br>
+      
+      <strong>C'est vraiment gratuit ?</strong><br>
+      Oui ! Google offre 1500 requêtes/jour gratuitement. C'est largement suffisant pour générer 50+ lettres par jour.<br><br>
+      
+      <strong>Ma clé est-elle sécurisée ?</strong><br>
+      Oui ! La clé est stockée localement dans Chrome (chiffré) et n'est jamais envoyée à d'autres serveurs que Google.<br><br>
+      
+      <strong>Quel modèle choisir ?</strong><br>
+      • <strong>gemini-2.0-flash-exp</strong> : Recommandé, rapide et performant ✅<br>
+      • <strong>gemini-1.5-flash</strong> : Très rapide, légèrement moins précis<br>
+      • <strong>gemini-1.5-pro</strong> : Qualité maximale, un peu plus lent<br>
+      • <strong>gemini-pro</strong> : Standard, peut être obsolète
     </p>
   </main>
   <script src="config.js"></script>
