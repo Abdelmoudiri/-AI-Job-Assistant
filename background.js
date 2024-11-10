@@ -8,14 +8,16 @@ chrome.runtime.onInstalled.addListener(() => {
 
 // fonction pour ajouter et sauvegarder les offres
 async function addJobs(jobs) {
-  const data = await chrome.storage.local.get('detectedJobs');
-  const existing = data.detectedJobs || [];
-  // fusionner et éviter les doublons par url/titre/entreprise
+  // au lieu de fusionner, on remplace complètement les offres
+  // car content.js envoie déjà toutes les offres détectées après dédupliquer
   const map = new Map();
-  for (const e of existing) map.set((e.url||'') + '|' + (e.title||''), e);
-  for (const j of jobs) map.set((j.url||'') + '|' + (j.title||''), j);
-  const merged = Array.from(map.values()).slice(0, 200);
-  await chrome.storage.local.set({ detectedJobs: merged });
+  for (const j of jobs) {
+    // utiliser url+title+company comme clé unique
+    const key = (j.url||'') + '|' + (j.title||'') + '|' + (j.company||'');
+    map.set(key, j);
+  }
+  const uniqueJobs = Array.from(map.values()).slice(0, 200);
+  await chrome.storage.local.set({ detectedJobs: uniqueJobs });
   // notifier les popups
   chrome.runtime.sendMessage({ type: 'jobsUpdated' });
 }

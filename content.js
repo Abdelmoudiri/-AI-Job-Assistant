@@ -1,7 +1,13 @@
 // content.js - scanner pour Indeed qui détecte les offres et extrait les tags tech
 
-// effacer les anciennes offres quand la page se charge/navigue
-chrome.runtime.sendMessage({ type: 'clearJobs' }, () => {});
+// fonction pour effacer les offres et attendre que ce soit terminé
+async function clearJobsAndWait() {
+  return new Promise(resolve => {
+    chrome.runtime.sendMessage({ type: 'clearJobs' }, () => {
+      resolve();
+    });
+  });
+}
 
 async function scanIndeedJobs() {
   try {
@@ -199,22 +205,24 @@ async function scanIndeedJobs() {
 }
 
 // scan initial au chargement de la page
-scanIndeedJobs();
+(async () => {
+  await clearJobsAndWait();
+  await scanIndeedJobs();
+})();
 
 // écouter les demandes de rescan depuis le popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type === 'rescan') {
     console.log('🔄 Rescan demandé par le popup');
     
-    // effacer les offres d'abord
-    chrome.runtime.sendMessage({ type: 'clearJobs' }, () => {});
+    // effacer les offres d'abord et attendre
+    (async () => {
+      await clearJobsAndWait();
+      await scanIndeedJobs();
+      sendResponse({ ok: true });
+    })();
     
-    // rescanner immédiatement
-    setTimeout(() => {
-      scanIndeedJobs();
-    }, 100);
-    
-    sendResponse({ ok: true });
+    return true; // garder le canal ouvert pour sendResponse asynchrone
   }
-  return true;
+  return false;
 });
